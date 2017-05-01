@@ -1,16 +1,7 @@
 #include "TROOT.h"
 #include "TRint.h"
-#include "TStyle.h"
 #include "TFile.h"
-#include "TCanvas.h"
-#include "TLine.h"
 #include "TH1F.h"
-#include "TH2F.h"
-#include "TProfile.h"
-#include "TEfficiency.h"
-#include "TGraphAsymmErrors.h"
-#include "THStack.h"
-#include "TLegend.h"
 #include "TTree.h"
 #include "TBranch.h"
 #include "TLorentzVector.h"
@@ -21,12 +12,7 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <algorithm>
-#include <sstream>
-#include <iostream>
-#include <fstream> 
 #include <vector>
-#include <regex>
 #include <map>
 
 
