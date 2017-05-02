@@ -185,10 +185,6 @@ int main(int argc, char* argv[]){
 	  if (iEvent % 25000 == 0 )
 	    std::cout << "[" << argv[0] << "] processing event : " << iEvent << "\r" << std::flush;
 	    
-	  evBranch->GetEntry(iEvent);
-	  float weight = ev->genInfos.size() > 0 ?
-	    ev->genInfos[0].genWeight/fabs(ev->genInfos[0].genWeight) : 1.;
-
 	  // Loop on all muons from an event
 	  for (auto & muon : ev->muons)
 	    {
@@ -196,7 +192,7 @@ int main(int argc, char* argv[]){
 	      // which includes some analysis helper functions
 	      if (muon.pt > algoConfig.muon_minPt &&
 		  hasGoodId(muon,algoConfig.muon_ID))
-		histos[sampleConfig.sampleName]["hPfIso"]->Fill(muon.isoPflow04,weight);
+		histos[sampleConfig.sampleName]["hPfIso"]->Fill(muon.isoPflow04);
 	    }
 	}
       
