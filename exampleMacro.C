@@ -184,7 +184,9 @@ int main(int argc, char* argv[]){
 
 	  if (iEvent % 25000 == 0 )
 	    std::cout << "[" << argv[0] << "] processing event : " << iEvent << "\r" << std::flush;
-	    
+
+	  evBranch->GetEntry(iEvent);
+
 	  // Loop on all muons from an event
 	  for (auto & muon : ev->muons)
 	    {
