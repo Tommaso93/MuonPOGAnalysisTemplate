@@ -121,10 +121,10 @@ int main(int argc, char* argv[]){
   parseConfig(configFile,algoConfig,sampleConfigs);
 
   // Output directory (read from config file)
-  TString dirName = algoConfig.file_outputDir;
-  system("mkdir -p " + dirName);
+  TString fileName = algoConfig.file_outputDir;
+  system("mkdir -p " + fileName);
 
-  TFile* outputFile = TFile::Open(dirName + "/results.root","RECREATE"); // CB find a better name for output file  
+  TFile* outputFile = TFile::Open(fileName + "/results.root","RECREATE"); // CB find a better name for output file  
 
   // Set it to kTRUE if you do not run interactively
   gROOT->SetBatch(kTRUE); 
@@ -149,27 +149,19 @@ int main(int argc, char* argv[]){
     {
 
       TString fileName = sampleConfig.fileName;
-      std::cout << "[" << argv[0] << "] Processing file "
+      std::cout << "[" << argv[0] << "] Processing file or directory "
 		<< fileName.Data() << std::endl;   
   
       // Initialize pointers to summary and full event structure
 
       muon_pog::Event*   ev   = new muon_pog::Event();
+      TChain* tree;
 
-      TTree* tree;
-      TBranch* evBranch;
-
-      // Open file, get tree, set branches
-
-      TFile* inputFile = TFile::Open(fileName,"READONLY");
-      tree = (TTree*)inputFile->Get("MUONPOGTREE");
-      if (!tree) inputFile->GetObject("MuonPogTree/MUONPOGTREE",tree);
-
-      evBranch = tree->GetBranch("event");
-      evBranch->SetAddress(&ev);
+      tree = openFileOrDir(fileName.Data());
+      tree->SetBranchAddress("event", &ev);
 
       // Watch number of entries
-      int nEntries = tree->GetEntriesFast();
+      int nEntries = tree->GetEntries();
       // CB a negative number of events mean process them all
       if (sampleConfig.nEvents > 0 && sampleConfig.nEvents < nEntries)
 	nEntries = sampleConfig.nEvents;
@@ -185,7 +177,7 @@ int main(int argc, char* argv[]){
 	  if (iEvent % 25000 == 0 )
 	    std::cout << "[" << argv[0] << "] processing event : " << iEvent << "\r" << std::flush;
 
-	  evBranch->GetEntry(iEvent);
+	  tree->GetEvent(iEvent);
 
 	  // Loop on all muons from an event
 	  for (auto & muon : ev->muons)
@@ -199,7 +191,6 @@ int main(int argc, char* argv[]){
 	}
       
       delete ev;
-      inputFile->Close();
       std::cout << std::endl;
 	   
     }
