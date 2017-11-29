@@ -63,9 +63,6 @@ namespace muon_pog {
     
     TString file_outputDir;
 
-    Float_t muon_minPt;      
-    TString muon_ID;
-
    
     AlgoConfig() {};
     
@@ -141,8 +138,8 @@ int main(int argc, char* argv[]){
   std::map<TString, std::map<TString, TH1F *> > histos;
   for (auto sampleConfig : sampleConfigs)
     {
-      TString histoName = "hPfIso_" + sampleConfig.sampleName;
-      histos[sampleConfig.sampleName]["hPfIso"] = new TH1F(histoName,histoName+";rel PF isolation (dBeta); entries",100,0,5);
+      TString histoName = "hNDTPrimtitives_" + sampleConfig.sampleName;
+      histos[sampleConfig.sampleName]["hNDTPrimitives"] = new TH1F(histoName,histoName+";# DT primitives; entries",10,-0.5,9.5);
     }      
 
   for (auto sampleConfig : sampleConfigs)
@@ -174,20 +171,13 @@ int main(int argc, char* argv[]){
 	{
 	  if (tree->LoadTree(iEvent)<0) break;
 
-	  if (iEvent % 25000 == 0 )
+	  if (iEvent % 100 == 0 )
 	    std::cout << "[" << argv[0] << "] processing event : " << iEvent << "\r" << std::flush;
 
 	  tree->GetEvent(iEvent);
 
-	  // Loop on all muons from an event
-	  for (auto & muon : ev->muons)
-	    {
-	      // hasGoodId come from interface/Utils.h
-	      // which includes some analysis helper functions
-	      if (muon.pt > algoConfig.muon_minPt &&
-		  hasGoodId(muon,algoConfig.muon_ID))
-		histos[sampleConfig.sampleName]["hPfIso"]->Fill(muon.isoPflow04);
-	    }
+	  histos[sampleConfig.sampleName]["hNDTPrimitives"]->Fill(ev->dtPrimitives.size());
+
 	}
       
       delete ev;
@@ -210,8 +200,6 @@ muon_pog::AlgoConfig::AlgoConfig(boost::property_tree::ptree::value_type & vt)
   try
     {
       file_outputDir = vt.second.get<std::string>("file_outputDir");
-      muon_minPt     = vt.second.get<Float_t>("muon_minPt");
-      muon_ID        = vt.second.get<std::string>("muon_ID");
     }
 
   catch (boost::property_tree::ptree_bad_data bd)

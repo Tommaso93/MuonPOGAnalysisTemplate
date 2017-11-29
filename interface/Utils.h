@@ -205,6 +205,32 @@ namespace muon_pog
   }
 
 
+  //From Fede, the function name says it all
+  void addUnderFlow(TH1 &hist)
+  {
+    hist.SetBinContent(1, hist.GetBinContent(0) + 
+		          hist.GetBinContent(1));
+    hist.SetBinError  (1, sqrt(hist.GetBinError(0)*hist.GetBinError(0) + 
+			       hist.GetBinError(1)*hist.GetBinError(1)));
+    hist.SetBinContent(0, 0); 
+    hist.SetBinError  (0, 0);  
+  }
+
+
+
+  //From Fede, the function name says it all
+  void addOverFlow(TH1 &hist)
+  {
+    Int_t lastBin = hist.GetNbinsX(); 
+    hist.SetBinContent(lastBin, hist.GetBinContent(lastBin) + 
+		                hist.GetBinContent(lastBin+1));
+    hist.SetBinError  (lastBin, sqrt(hist.GetBinError(lastBin)*hist.GetBinError(lastBin) + 
+				     hist.GetBinError(lastBin+1)*hist.GetBinError(lastBin+1))); 
+    hist.SetBinContent(lastBin+1, 0) ; 
+    hist.SetBinError  (lastBin+1, 0) ; 
+    
+  }
+
   std::string exec(const char* cmd) {
     char buffer[100000];
     std::string result = "";
@@ -259,6 +285,10 @@ namespace muon_pog
 
      return muonChain;
   }
+
+
+  
+
   
 }
 

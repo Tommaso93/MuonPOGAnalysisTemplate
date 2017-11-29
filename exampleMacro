@@ -17,7 +17,7 @@ rm -f ${fileEXE}
 echo "[$0]: Compiling"
 rootcling -f MuonPogTreeDict.C -c ${BASETREEDIR}/MuonPogTree.h ${BASETREEDIR}/MuonPogTreeLinkDef.h
 
-g++ -g -std=gnu++11 -I${ROOTINCDIR} -I${BOOSTDIR}include/ ${fileC} MuonPogTreeDict.C ${ROOTLIBS} -L${BOOSTDIR}lib/ -lX11 -lboost_system -lboost_filesystem -o ${fileEXE}
+g++ -g -std=gnu++1y -I${ROOTINCDIR} -I${BOOSTDIR}include/ ${fileC} MuonPogTreeDict.C ${ROOTLIBS} -L${BOOSTDIR}lib/ -lX11 -lboost_system -lboost_filesystem -o ${fileEXE}
 
 echo "[$0]: Running with parameters $@" 
 ${fileEXE} $@

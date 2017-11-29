@@ -3,6 +3,7 @@
 
 #include "TROOT.h"
 #include "TMath.h"
+#include <bitset>
 #include <vector>
 #include <string>
 
@@ -60,40 +61,123 @@ namespace muon_pog {
 
   class ChambMatch {
   public:
-    Int_t r;   // station/disk
-    Int_t phi; // sector
-    Int_t eta; // ring/wheel
-    
+    Int_t id_r;   // station/disk
+    Int_t id_phi; // sector
+    Int_t id_eta; // ring/wheel
+
     MuonDetType type;
-    
+
     Float_t x; 
     Float_t y;
+
+    Float_t phi; 
+    Float_t eta;
+    Float_t zGlb;
 
     Float_t dXdZ; 
     Float_t dYdZ;
 
-    Float_t dx;  // 999999 if not matched with a segment (I think) 
-    Float_t dy;  // 999999 if not matched with a segment (I think)
+    Float_t errx; 
+    Float_t erry; 
 
-    Float_t dDxDz;  // 999999 if not matched with a segment (I think) 
-    Float_t dDyDz;  // 999999 if not matched with a segment (I think)
-    
-    Float_t errxTk; 
-    Float_t erryTk; 
+    Float_t errDxDz; 
+    Float_t errDyDz; 
 
-    Float_t errDxDzTk; 
-    Float_t errDyDzTk; 
-    
-    Float_t errxSeg;  // 999999 if not matched with a segment (I think)
-    Float_t errySeg;  // 999999 if not matched with a segment (I think) 
+    std::vector<std::size_t> indexes;
+    std::vector<std::bitset<4> >  matchQuals; // bit order 0 = Trk, 1 = TrkArb, 2 = Sta, 3 = Sta Valid 
 
-    Float_t errDxDzSeg;  // 999999 if not matched with a segment (I think)
-    Float_t errDyDzSeg;  // 999999 if not matched with a segment (I think) 
-    
+    std::vector<std::size_t> trigIndexes;
+
     ChambMatch(){};
     virtual ~ChambMatch(){};
     
-    ClassDef(ChambMatch,2)
+    ClassDef(ChambMatch,5)
+  };
+
+  class DtDigiSummary {
+
+  public:
+
+    Int_t id_r;   // station/disk
+    Int_t id_phi; // sector
+    Int_t id_eta; // ring/wheel
+
+    Int_t n_phi1; 
+    Int_t n_theta;
+    Int_t n_phi2;
+
+    DtDigiSummary(){};
+    virtual ~DtDigiSummary(){};
+
+    ClassDef(DtDigiSummary,1)
+
+  };
+
+  class MuonSegment {
+
+  public:
+
+    Int_t id_r;   // station/disk
+    Int_t id_phi; // sector
+    Int_t id_eta; // ring/wheel
+    
+    Float_t x; 
+    Float_t y;
+
+    Float_t phi; 
+    Float_t eta;
+
+    Float_t dXdZ; 
+    Float_t dYdZ;
+
+    Float_t errx; 
+    Float_t erry; 
+
+    Float_t errDxDz; 
+    Float_t errDyDz; 
+
+    Float_t chi2;  
+    Float_t time; 
+
+    Int_t nHitsX; 
+    Int_t nHitsY;
+    
+    MuonSegment(){};
+    virtual ~MuonSegment(){};
+    
+    ClassDef(MuonSegment,1)
+  };
+
+  class TriggerPrimitive {
+
+  public:
+
+    Int_t id_r;   // station/disk
+    Int_t id_phi; // sector
+    Int_t id_eta; // ring/wheel
+    
+    Float_t phi; 
+    Float_t phiB;
+
+    Short_t quality;  
+    Short_t bx; 
+
+    Bool_t is2nd;  
+    
+    TriggerPrimitive(){};
+    virtual ~TriggerPrimitive(){};
+
+    inline Int_t bxTrackFinder() const 
+    {
+      return bx - (is2nd ? 1 : 0);
+    };
+
+    inline Float_t phiGlb() const 
+    {
+      return (phi / 4096.) + TMath::Pi() / 6. * (id_phi - 1);
+    };
+
+    ClassDef(TriggerPrimitive,3)
   };
 
   class HitInfo {
@@ -163,6 +247,9 @@ namespace muon_pog {
     Int_t   isTight;
     Int_t   isMedium;
     Int_t   isHighPt;
+
+    Int_t   isBadMuon;
+    Int_t   isClone;
     
     //Detector Based Isolation
     Float_t trackerIso;
@@ -194,11 +281,15 @@ namespace muon_pog {
     //  - General (Tight, HighPt, Soft) 
     Float_t glbNormChi2; 
     Float_t trkNormChi2; 
-    Int_t   trkMuonMatchedStations; 
+    Int_t   trkMuonMatchedStations;
+    Int_t   rpcMuonMatchedRPCLayers;
+    Int_t   trkMuonZPrimeMatchedStations;
+
     Int_t   glbMuonValidHits; 
     Int_t   trkPixelValidHits; 
     Int_t   trkPixelLayersWithMeas; 
     Int_t   trkTrackerLayersWithMeas; 
+    Int_t   trkTrackerLostHits; 
 
     //  - HighPt 
     Float_t bestMuPtErr; 
@@ -218,12 +309,16 @@ namespace muon_pog {
     Float_t dxyInner; 
     Float_t dzInner; 
 
+    // Trk algo
+    Int_t algo; 
+    Int_t origAlgo; 
+
     // Muon time 
     Float_t muonTimeDof; 
     Float_t muonTime; 
     Float_t muonTimeErr;
 
-    // Muon time 
+    // RPC Muon time 
     Float_t muonRpcTimeDof; 
     Float_t muonRpcTime; 
     Float_t muonRpcTimeErr;
@@ -235,34 +330,78 @@ namespace muon_pog {
     Muon(){};
     virtual ~Muon(){};
 
-    inline Float_t fitPt( const muon_pog::MuonFitType type ) 
+    inline Float_t fitPt( const muon_pog::MuonFitType type ) const 
     {
       return fits.at(type).pt;
     };
 
-    inline Float_t fitEta( const muon_pog::MuonFitType type ) 
+    inline Float_t fitEta( const muon_pog::MuonFitType type ) const 
     {
       return fits.at(type).eta;
     };
 
-    inline Float_t fitPhi( const muon_pog::MuonFitType type ) 
+    inline Float_t fitPhi( const muon_pog::MuonFitType type ) const 
     {
       return fits.at(type).phi;
     };
 
-    inline Int_t fitCharge( const muon_pog::MuonFitType type ) 
+    inline Int_t fitCharge( const muon_pog::MuonFitType type ) const 
     {
       return fits.at(type).charge;
     };
 
-    inline Float_t fitPtErr( const muon_pog::MuonFitType type ) 
+    inline Float_t fitPtErr( const muon_pog::MuonFitType type ) const 
     {
       return fits.at(type).ptErr;
     };
 
-    ClassDef(Muon,4)
+    ClassDef(Muon,5)
   };
 
+  class MuonPair {
+  public:
+
+    MuonPair()
+      {
+	for (int i=0; i<2; ++i)
+	  {
+	    muIdx[i] = 0;
+	    muPt[i]  = -999.;
+	  }
+      };
+
+    MuonPair(const MuonPair & pair)
+      {
+
+	vertexProb = pair.vertexProb;
+	vertexChi2 = pair.vertexChi2;
+	vertexNDof = pair.vertexNDof;
+
+	for (int i=0; i<2; ++i)
+	  {
+	    muIdx[i] = pair.muIdx[i];
+	    muPt[i]  = pair.muPt[i];
+	  }
+      };
+
+    virtual ~MuonPair() { };
+    
+    Float_t vertexProb;
+    Float_t vertexChi2;
+    Int_t   vertexNDof;
+    std::size_t  muIdx[2];
+    Float_t      muPt[2];
+    
+    const muon_pog::Muon & getMu(const int i, 
+				 const std::vector<muon_pog::Muon> & muons ) const
+      {
+	return muons.at(muIdx[i-1]);
+      };
+
+    ClassDef(MuonPair,1)
+
+  };
+  
   class HLTObject {
   public:
 
@@ -326,9 +465,9 @@ namespace muon_pog {
   class EventId {
   public:
 
-    Int_t runNumber;              // run number
-    Int_t luminosityBlockNumber;  // luminosity block number
-    Int_t eventNumber;            // event number
+    ULong64_t runNumber;              // run number
+    ULong64_t luminosityBlockNumber;  // luminosity block number
+    ULong64_t eventNumber;            // event number
     Int_t nMuons;                 // number of good muons in the event
     std::vector<Float_t> maxPTs;  // max PT for each good muon in the event
 
@@ -341,9 +480,9 @@ namespace muon_pog {
   class Event {
   public:
 
-    Int_t runNumber;             // run number
-    Int_t luminosityBlockNumber; // luminosity block number
-    Int_t eventNumber;           // event number
+    ULong64_t runNumber;             // run number
+    ULong64_t luminosityBlockNumber; // luminosity block number
+    ULong64_t eventNumber;           // event number
 
     Int_t bxId;                  // bunch crossing number
     unsigned long long orbit;    // orbit number
@@ -353,9 +492,14 @@ namespace muon_pog {
     Float_t primaryVertex[3];        // 3d coordinates of PV [cm]
     Float_t cov_primaryVertex[3][3]; // 3x3 covariance matrix of PV estimation [cm*cm]
 
-    std::vector <muon_pog::GenInfo> genInfos;        // venctor of genInfos; size=0 in data
+    std::vector<muon_pog::GenInfo> genInfos;        // venctor of genInfos; size=0 in data
     std::vector<muon_pog::GenParticle> genParticles; // venctor of genParticles size=0 in data
     std::vector<muon_pog::Muon> muons; // vector of muons
+    std::vector<muon_pog::MuonPair> pairs; // vector of muon pairs
+    std::vector<muon_pog::DtDigiSummary> dtDigis; // vector of DT digi counters
+    std::vector<muon_pog::MuonSegment> dtSegments; // vector of DT segments
+    std::vector<muon_pog::MuonSegment> cscSegments; // vector of CSC segments
+    std::vector<muon_pog::TriggerPrimitive> dtPrimitives; // vector of DT trigger primitives
     muon_pog::METs mets;  // vector of different MET definitions 
     muon_pog::HLT hlt;                 // HLT objects
     std::vector <muon_pog::L1Muon> l1muons; //vector with the L1 muon candidates
@@ -363,7 +507,7 @@ namespace muon_pog {
     Event(){};
     virtual ~Event(){};
 
-    ClassDef(Event,6)
+    ClassDef(Event,11)
   };
 
 }
