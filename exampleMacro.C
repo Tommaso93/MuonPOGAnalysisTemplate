@@ -176,7 +176,8 @@ int main(int argc, char* argv[]){
 
 	  tree->GetEvent(iEvent);
 
-	  histos[sampleConfig.sampleName]["hNDTPrimitives"]->Fill(ev->dtPrimitives.size());
+	  for (const auto & dtPrimitive : ev->dtPrimitives) 
+	    histos[sampleConfig.sampleName]["hNDTPrimitives"]->Fill(dtPrimitive.id_r);
 
 	}
       
