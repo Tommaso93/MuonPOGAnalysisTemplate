@@ -3,6 +3,7 @@ import ROOT as root
 import numpy as np
 import csv
 import argparse
+import os.path
 #root.gInterpreter.ProcessLine('#include "interface/MuonPogTree.h"')
 #root.gSystem.Load('MuonPogTreeDict_rdict')
 
@@ -18,6 +19,31 @@ class OptionParser():
             dest="branches", default="", help="ROOT branches to read, 'Electron_,Jet_'")
         self.parser.add_argument("--fout", action="store",
             dest="fout", default="output.csv", help="Output CSV file")
+        self.parser.add_argument("--branch-list", action="store_true",
+            dest="listbranches", default=False, help="List branches and exit (requires --branch argument)" )
+
+def convert_to_csv(muonTree,fout,l_branches):
+    "Function that converts selected branches into a CSV file"
+    save_path = './output/'
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    completeName = os.path.join(save_path,fout)
+    branches = [b.strip() for b in l_branches.split(',')]
+    new_branch = []
+    print branches
+
+    entries = muonTree.GetEntriesFast()
+
+    with open(completeName,'wb') as csvfile:
+        writer = csv.writer(csvfile)
+        for entry in muonTree:
+            for dtPrimitive, genParticle in [(dtPrimitive,genParticle) for dtPrimitive in entry.event.dtPrimitives for genParticle in entry.event.genParticles]:
+                for branch in branches:
+                    new_branch.append(eval(branch))
+                if dtPrimitive.bx == 0: 
+                    new_branch.insert(0,entry.event.eventNumber)
+                    writer.writerow(new_branch)
+                    del new_branch[:]
 
 def main():
     "Main function"
@@ -26,27 +52,12 @@ def main():
     root.gROOT.LoadMacro('interface/MuonPogTree.h++')
     from ROOT.muon_pog import Event 
     opts.inputFile = root.TFile("/afs/cern.ch/work/b/bonacor/TOMMASO/MuonTree.root")
-    opts.branch = opts.inputFile.Get("MuonPogTree/MUONPOGTREE")
-    branches = [b.strip() for b in opts.branches.split(',')]
-    new_branch = []
-    print branches
-    #print opts.branch.Print()
+    muonTree = opts.inputFile.Get(opts.branch)
+    if opts.listbranches == True:
+        print muonTree.Print()
+    else:
+        convert_to_csv(muonTree,opts.fout,opts.branches)
 
-    entries = opts.branch.GetEntriesFast()
-
-    with open(opts.fout,'wb') as csvfile:
-        writer = csv.writer(csvfile)
-        for entry in opts.branch:
-            for dtPrimitive, genParticle in [(dtPrimitive,genParticle) for dtPrimitive in entry.event.dtPrimitives for genParticle in entry.event.genParticles]:
-                for branch in branches:
-                    new_branch.append(eval(branch))
-                if dtPrimitive.bx == 0:
-                #writer.writerow(entry.event.eventNumber, dtPrimitive.id_r, dtPrimitive.id_phi, \
-                #dtPrimitive.id_eta, dtPrimitive.bxTrackFinder(), dtPrimitive.phiGlb(), genParticle.pt
-                    #branches.insert(0,entry.event.eventNumber)
-                    new_branch.insert(0,entry.event.eventNumber)        
-                    writer.writerow(new_branch)
-                    del new_branch[:] 
 
 if __name__ == '__main__':
     main()
