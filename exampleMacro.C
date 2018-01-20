@@ -2,6 +2,7 @@
 #include "TRint.h"
 #include "TFile.h"
 #include "TH1F.h"
+#include "TCanvas.h"
 #include "TTree.h"
 #include "TBranch.h"
 #include "TLorentzVector.h"
@@ -15,7 +16,7 @@
 #include <vector>
 #include <map>
 
-
+#include <boost/range/combine.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
@@ -120,17 +121,27 @@ int main(int argc, char* argv[]){
   // Output directory (read from config file)
   TString fileName = algoConfig.file_outputDir;
   system("mkdir -p " + fileName);
-
+  std::ofstream myfile;
+  myfile.open(fileName + "/output_text.txt");
+  Int_t ID=0;
+  Double_t pt_assign=0;
+  myfile << "Event\tid_r\tid_phi\tid_eta\tphi\tphiB\tquality\tbx\tpt\n";
   TFile* outputFile = TFile::Open(fileName + "/results.root","RECREATE"); // CB find a better name for output file  
-
+  TH1F* histo1 = new TH1F("dtPrimitive.size3OR4.id_r","dtPrimitive.id_r",10,-0.5,9.5);
+  TH1F* histo2 = new TH1F("dtPrimitive.size3OR4.id_phi","dtPrimitive.id_phi",13,0,13);
+  TH1F* histo3 = new TH1F("dtPrimitive.size3OR4.id_eta","dtPrimitive.id_eta",6,-3,3);
+  TH1F* histo4 = new TH1F("dtPrimitive.size3OR4.phi","dtPrimitive.phi",100,-2000,2000);
+  TH1F* histo5 = new TH1F("dtPrimitive.size3OR4.phiB","dtPrimitive.phiB",100,-720,580);
+  TH1F* histo6 = new TH1F("dtPrimitive.size3OR4.quality","dtPrimitive.quality",6,1,7);
+  TH1F* histo7 = new TH1F("dtPrimitive.size3OR4.bx","dtPrimitive.bx",16,-9,6);
   // Set it to kTRUE if you do not run interactively
   gROOT->SetBatch(kTRUE); 
-
+  //////////////gStyle->SetOptStat("ne");
   // Initialize Root application
   TRint* app = new TRint("CMS Root Application", &argc, argv);
 
   // Use ROOT object plotting style from CMS (tdrstyle.C)
-  setTDRStyle();
+  //setTDRStyle();
  
   // In general it is more handy to have an object or container
   // holding plotted quantities rather than many sparse variables
@@ -173,19 +184,34 @@ int main(int argc, char* argv[]){
 
 	  if (iEvent % 100 == 0 )
 	    std::cout << "[" << argv[0] << "] processing event : " << iEvent << "\r" << std::flush;
-
 	  tree->GetEvent(iEvent);
-
-	  for (const auto & dtPrimitive : ev->dtPrimitives) 
-	    histos[sampleConfig.sampleName]["hNDTPrimitives"]->Fill(dtPrimitive.id_r);
-
+	 
+         histos[sampleConfig.sampleName]["hNDTPrimitives"]->Fill(ev->dtPrimitives.size()); 
+	  for (const auto & genParticle: ev->genParticles)
+          {
+          pt_assign = genParticle.pt;
+          }
+          if(ev->dtPrimitives.size()==3 || ev->dtPrimitives.size()==4)
+          {
+          for (const auto & dtPrimitive : ev->dtPrimitives)
+	    {
+           // histo1->Fill(dtPrimitive.id_r);
+           // histo2->Fill(dtPrimitive.id_phi);
+           // histo3->Fill(dtPrimitive.id_eta);
+           // histo4->Fill(dtPrimitive.phi);
+            //histo5->Fill(dtPrimitive.phiB);
+           // histo6->Fill(dtPrimitive.quality);
+           //histo7->Fill(dtPrimitive.bx);
+           myfile << iEvent << '\t' << dtPrimitive.id_r << '\t' << dtPrimitive.id_phi << '\t' << dtPrimitive.id_eta << '\t' << dtPrimitive.phi << '\t' << dtPrimitive.phiB << '\t' << dtPrimitive.quality << '\t' << dtPrimitive.bx << '\t' << pt_assign << '\n';  
+            ID++;
+            } 
+          }
 	}
       
       delete ev;
       std::cout << std::endl;
-	   
-    }
-  
+      myfile.close();
+    } 
   outputFile->Write();
   
   if (!gROOT->IsBatch()) app->Run();
