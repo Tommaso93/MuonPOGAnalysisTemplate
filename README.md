@@ -16,3 +16,23 @@
 ```
 
 Will compile and exectute the analysis, results will be saved in a root file under the `results/` directory created by the macro at runtime (the output directory is acutally [a configuration parameter](https://github.com/battibass/MuonPOGAnalysisTemplate/blob/master/config/config.ini) of `config/config.ini`)
+
+## Reading ROOT files
+This code allows to read ROOT file content directly into a flat CSV file.
+
+Usage:
+```
+./exampleMacro.py --help
+usage: PROG [-h] [--fin INPUTFILE] [--branch BRANCH] [--branches BRANCHES]
+            [--fout FOUT]
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --fin INPUTFILE      Input ROOT file
+  --branch BRANCH      Input ROOT file branch (default events)
+  --branches BRANCHES  ROOT branches to read, 'Electron_,Jet_'
+  --fout FOUT          Output CSV file
+
+```
+
+
