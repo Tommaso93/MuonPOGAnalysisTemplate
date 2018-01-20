@@ -1,12 +1,10 @@
+#!/usr/bin/env python
 import ROOT as root
 import numpy as np
 import csv
 import argparse
 #root.gInterpreter.ProcessLine('#include "interface/MuonPogTree.h"')
 #root.gSystem.Load('MuonPogTreeDict_rdict')
-
-root.gROOT.LoadMacro('interface/MuonPogTree.h++')
-from ROOT.muon_pog import Event
 
 class OptionParser():
     def __init__(self):
@@ -24,7 +22,9 @@ class OptionParser():
 def main():
     "Main function"
     optmgr  = OptionParser()
-    opts = optmgr.parser.parse_args() 
+    opts = optmgr.parser.parse_args()
+    root.gROOT.LoadMacro('interface/MuonPogTree.h++')
+    from ROOT.muon_pog import Event 
     opts.inputFile = root.TFile("/afs/cern.ch/work/b/bonacor/TOMMASO/MuonTree.root")
     opts.branch = opts.inputFile.Get("MuonPogTree/MUONPOGTREE")
     branches = [b.strip() for b in opts.branches.split(',')]
