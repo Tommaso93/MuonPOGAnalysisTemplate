@@ -47,6 +47,7 @@ def convert_to_csv(muonTree,fout,l_branches):
 
 def main():
     "Main function"
+    line = '-'*64
     optmgr  = OptionParser()
     opts = optmgr.parser.parse_args()
     root.gROOT.LoadMacro('interface/MuonPogTree.h++')
@@ -54,7 +55,20 @@ def main():
     opts.inputFile = root.TFile("/afs/cern.ch/work/b/bonacor/TOMMASO/MuonTree.root")
     muonTree = opts.inputFile.Get(opts.branch)
     if opts.listbranches == True:
-        print muonTree.Print()
+        for branch in muonTree.GetListOfBranches():
+            print line
+            br = muonTree.GetBranch(branch.GetName())
+            print 'BRANCH ',branch.GetName(),' with type ',type(br)
+            for subbranch in br.GetListOfBranches():
+                print line 
+                lname = subbranch.GetName()
+                print '-> branch ',lname
+                sbr = muonTree.GetBranch(subbranch.GetName())
+                for ssbranch in sbr.GetListOfBranches():
+                    lname,ltype = ssbranch.GetName(),sbr.GetTypeName()
+                    print '\t-> ',lname,' with type ',ltype
+        print line
+       # print muonTree.Print()
     else:
         convert_to_csv(muonTree,opts.fout,opts.branches)
 
