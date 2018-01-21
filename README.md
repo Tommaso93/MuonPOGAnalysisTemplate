@@ -32,6 +32,7 @@ optional arguments:
   --branch BRANCH      Input ROOT file branch (default events)
   --branches BRANCHES  ROOT branches to read, 'Electron_,Jet_'
   --fout FOUT          Output CSV file
+  --branch-list        List branches and exit (requires --branch argument)
 
 ```
 
