@@ -24,7 +24,7 @@ Usage:
 ```
 ./exampleMacro.py --help
 usage: PROG [-h] [--fin INPUTFILE] [--branch BRANCH] [--branches BRANCHES]
-            [--fout FOUT]
+            [--fout FOUT] [--branch-list]
 
 optional arguments:
   -h, --help           show this help message and exit
