@@ -6,6 +6,7 @@ import argparse
 import os.path
 #root.gInterpreter.ProcessLine('#include "interface/MuonPogTree.h"')
 #root.gSystem.Load('MuonPogTreeDict_rdict')
+line = '-'*64
 
 class OptionParser():
     def __init__(self):
@@ -16,12 +17,21 @@ class OptionParser():
         self.parser.add_argument("--branch", action="store",
             dest="branch", default="events", help="Input ROOT file branch (default events)")
         self.parser.add_argument("--branches", action="store",
-            dest="branches", default="", help="ROOT branches to read, 'Electron_,Jet_'")
+            dest="branches", default="", help="ROOT branches to read, e.g.'dtPrimitives.id_r,genParticles.pt'")
         self.parser.add_argument("--fout", action="store",
             dest="fout", default="output.csv", help="Output CSV file")
         self.parser.add_argument("--branch-list", action="store_true",
             dest="listbranches", default=False, help="List branches and exit (requires --branch argument)" )
 
+def list_branches(tree,base_tree,n=0):
+    n += 1
+    for branch in tree.GetListOfBranches():
+        br = base_tree.GetBranch(branch.GetName())
+        lname,ltype = branch.GetName(),br.GetTypeName()
+        print '\t'*(n-1),'-> Branch ',lname,' with type ',ltype
+        list_branches(br,base_tree,n) 
+
+ 
 def convert_to_csv(muonTree,fout,l_branches):
     "Function that converts selected branches into a CSV file"
     save_path = './output/'
@@ -46,8 +56,7 @@ def convert_to_csv(muonTree,fout,l_branches):
                     del new_branch[:]
 
 def main():
-    "Main function"
-    line = '-'*64
+    "Main function" 
     optmgr  = OptionParser()
     opts = optmgr.parser.parse_args()
     root.gROOT.LoadMacro('interface/MuonPogTree.h++')
@@ -55,20 +64,9 @@ def main():
     opts.inputFile = root.TFile("/afs/cern.ch/work/b/bonacor/TOMMASO/MuonTree.root")
     muonTree = opts.inputFile.Get(opts.branch)
     if opts.listbranches == True:
-        for branch in muonTree.GetListOfBranches():
-            print line
-            br = muonTree.GetBranch(branch.GetName())
-            print 'BRANCH ',branch.GetName(),' with type ',type(br)
-            for subbranch in br.GetListOfBranches():
-                print line 
-                lname = subbranch.GetName()
-                print '-> branch ',lname
-                sbr = muonTree.GetBranch(subbranch.GetName())
-                for ssbranch in sbr.GetListOfBranches():
-                    lname,ltype = ssbranch.GetName(),sbr.GetTypeName()
-                    print '\t-> ',lname,' with type ',ltype
         print line
-       # print muonTree.Print()
+        list_branches(muonTree,muonTree)
+        print line
     else:
         convert_to_csv(muonTree,opts.fout,opts.branches)
 
