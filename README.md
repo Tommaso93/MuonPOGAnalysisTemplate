@@ -35,5 +35,8 @@ optional arguments:
   --branch-list        List branches and exit (requires --branch argument)
 
 ```
-
+Example:
+```bash
+./exampleMacro.py --fin /afs/cern.ch/work/b/bonacor/TOMMASO/MuonTree.root --branch MuonPogTree/MUONPOGTREE --branches "dtPrimitive.id_r,dtPrimitive.id_eta,dtPrimitive.id_phi,dtPrimitive.bxTrackFinder(),dtPrimitive.phiGlb(),genParticle.pt"
+```
 
