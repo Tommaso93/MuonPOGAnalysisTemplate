@@ -61,7 +61,7 @@ def main():
     opts = optmgr.parser.parse_args()
     root.gROOT.LoadMacro('interface/MuonPogTree.h++')
     from ROOT.muon_pog import Event 
-    opts.inputFile = root.TFile("/afs/cern.ch/work/b/bonacor/TOMMASO/MuonTree.root")
+    opts.inputFile = root.TFile(opts.fin)
     muonTree = opts.inputFile.Get(opts.branch)
     if opts.listbranches == True:
         print line
