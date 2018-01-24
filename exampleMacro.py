@@ -46,23 +46,24 @@ def convert_to_csv(muonTree,fout,l_branches):
 
     with open(completeName,'wb') as csvfile:
         writer = csv.writer(csvfile)
-        for entry in muonTree:
+        for entry in muonTree: 
             for dtPrimitive, genParticle in [(dtPrimitive,genParticle) for dtPrimitive in entry.event.dtPrimitives for genParticle in entry.event.genParticles]:
+                new_branch.insert(0,entry.event.eventNumber)
                 for branch in branches:
-                    new_branch.append(eval(branch))
-                if dtPrimitive.bx == 0: 
-                    new_branch.insert(0,entry.event.eventNumber)
+                    new_branch.append(eval(branch)) 
+                if dtPrimitive.bx == 0:
                     writer.writerow(new_branch)
                     del new_branch[:]
+                del new_branch[:]
 
 def main():
-    "Main function" 
+    "Main function"
     optmgr  = OptionParser()
     opts = optmgr.parser.parse_args()
     root.gROOT.LoadMacro('interface/MuonPogTree.h++')
     from ROOT.muon_pog import Event 
-    opts.inputFile = root.TFile(opts.fin)
-    muonTree = opts.inputFile.Get(opts.branch)
+    fin = root.TFile(opts.inputFile)
+    muonTree = fin.Get(opts.branch)
     if opts.listbranches == True:
         print line
         list_branches(muonTree,muonTree)
