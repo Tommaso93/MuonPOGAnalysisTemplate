@@ -8,6 +8,7 @@ import os.path
 #root.gSystem.Load('MuonPogTreeDict_rdict')
 line = '-'*64
 
+
 class OptionParser():
     def __init__(self):
         "User based option parser"
@@ -40,12 +41,17 @@ def convert_to_csv(muonTree,fout,l_branches):
     completeName = os.path.join(save_path,fout)
     branches = [b.strip() for b in l_branches.split(',')]
     new_branch = []
+    header = []
     print branches
 
     entries = muonTree.GetEntriesFast()
 
     with open(completeName,'wb') as csvfile:
+        header.insert(0,"Event")
+        for branch in branches:
+            header.append(branch) 
         writer = csv.writer(csvfile)
+        writer.writerow(header)
         for entry in muonTree: 
             for dtPrimitive, genParticle in [(dtPrimitive,genParticle) for dtPrimitive in entry.event.dtPrimitives for genParticle in entry.event.genParticles]:
                 new_branch.insert(0,entry.event.eventNumber)
