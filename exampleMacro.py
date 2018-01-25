@@ -23,6 +23,8 @@ class OptionParser():
             dest="fout", default="output.csv", help="Output CSV file")
         self.parser.add_argument("--branch-list", action="store_true",
             dest="listbranches", default=False, help="List branches and exit (requires --branch argument)" )
+        self.parser.add_argument("--cut",action="store",
+            dest="cut", default="True", help="Cuts for CSV")
 
 def list_branches(tree,base_tree,n=0):
     n += 1
@@ -33,7 +35,7 @@ def list_branches(tree,base_tree,n=0):
         list_branches(br,base_tree,n) 
 
  
-def convert_to_csv(muonTree,fout,l_branches):
+def convert_to_csv(muonTree,fout,l_branches,cut):
     "Function that converts selected branches into a CSV file"
     save_path = './output/'
     if not os.path.exists(save_path):
@@ -53,9 +55,9 @@ def convert_to_csv(muonTree,fout,l_branches):
         writer = csv.writer(csvfile)
         writer.writerow(header)
         for entry in muonTree: 
-            for dtPrimitive, genParticle in [(dtPrimitive,genParticle) for dtPrimitive in entry.event.dtPrimitives for genParticle in entry.event.genParticles]:
+            for dtPrimitive, genParticle in [(dtPrimitive,genParticle) for dtPrimitive in entry.event.dtPrimitives for genParticle in entry.event.genParticles]: 
                 new_branch.insert(0,entry.event.eventNumber)
-                if dtPrimitive.bx == 0:
+                if eval(cut): #dtPrimitive.bx == 0:
                     for branch in branches:   
                         new_branch.append(eval(branch))  
                     writer.writerow(new_branch) 
@@ -75,7 +77,7 @@ def main():
         list_branches(muonTree,muonTree)
         print line
     else:
-        convert_to_csv(muonTree,opts.fout,opts.branches)
+        convert_to_csv(muonTree,opts.fout,opts.branches,opts.cut)
 
 
 if __name__ == '__main__':
