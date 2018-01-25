@@ -49,10 +49,10 @@ def convert_to_csv(muonTree,fout,l_branches):
         for entry in muonTree: 
             for dtPrimitive, genParticle in [(dtPrimitive,genParticle) for dtPrimitive in entry.event.dtPrimitives for genParticle in entry.event.genParticles]:
                 new_branch.insert(0,entry.event.eventNumber)
-                for branch in branches:
-                    new_branch.append(eval(branch)) 
                 if dtPrimitive.bx == 0:
-                    writer.writerow(new_branch)
+                    for branch in branches:   
+                        new_branch.append(eval(branch))  
+                    writer.writerow(new_branch) 
                     del new_branch[:]
                 del new_branch[:]
 
