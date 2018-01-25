@@ -212,8 +212,7 @@ int main(int argc, char* argv[]){
             continue;}
             histo9->Fill(pt_assign);
             //myfile << iEvent << '\t' << pt_assign << '\n';
-            a = iEvent;} 
-            a = iEvent;
+            a = iEvent;}    
             } 
 	}
       
