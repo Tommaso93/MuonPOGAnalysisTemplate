@@ -23,20 +23,23 @@ This code allows to read ROOT file content directly into a flat CSV file.
 Usage:
 ```
 ./exampleMacro.py --help
-usage: PROG [-h] [--fin INPUTFILE] [--branch BRANCH] [--branches BRANCHES]
-            [--fout FOUT] [--branch-list]
+Usage: PROG [-h] [--fin INPUTFILE] [--branch BRANCH] [--branches BRANCHES]
+            [--fout FOUT] [--branch-list] [--cut CUT]
 
 optional arguments:
   -h, --help           show this help message and exit
   --fin INPUTFILE      Input ROOT file
   --branch BRANCH      Input ROOT file branch (default events)
-  --branches BRANCHES  ROOT branches to read, 'Electron_,Jet_'
+  --branches BRANCHES  ROOT branches to read,
+                       e.g.'dtPrimitives.id_r,genParticles.pt'
   --fout FOUT          Output CSV file
   --branch-list        List branches and exit (requires --branch argument)
+  --cut CUT            Cuts for CSV
 
 ```
 Example:
+
 ```bash
-./exampleMacro.py --fin /afs/cern.ch/work/b/bonacor/TOMMASO/MuonTree.root --branch MuonPogTree/MUONPOGTREE --branches "dtPrimitive.id_r,dtPrimitive.id_eta,dtPrimitive.id_phi,dtPrimitive.bxTrackFinder(),dtPrimitive.phiGlb(),genParticle.pt"
+./exampleMacro.py --fin /afs/cern.ch/work/b/bonacor/TOMMASO/MuonTree.root --branch MuonPogTree/MUONPOGTREE --branches "dtPrimitive.id_r,dtPrimitive.id_eta,dtPrimitive.id_phi,dtPrimitive.bxTrackFinder(),dtPrimitive.phiGlb(),genParticle.pt,dtPrimitive.bx" --fout output_bxcut.csv --cut "dtPrimitive.bx==0"
 ```
 
