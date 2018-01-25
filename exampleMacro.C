@@ -124,6 +124,7 @@ int main(int argc, char* argv[]){
   std::ofstream myfile;
   myfile.open(fileName + "/output_text.txt");
   Int_t ID=0;
+  Int_t a=-1;
   Double_t pt_assign=0;
   myfile << "Event\tid_r\tid_phi\tid_eta\tphi\tphiB\tquality\tbx\tpt\n";
   TFile* outputFile = TFile::Open(fileName + "/results.root","RECREATE"); // CB find a better name for output file  
@@ -134,6 +135,8 @@ int main(int argc, char* argv[]){
   TH1F* histo5 = new TH1F("dtPrimitive.size3OR4.phiB","dtPrimitive.phiB",100,-720,580);
   TH1F* histo6 = new TH1F("dtPrimitive.size3OR4.quality","dtPrimitive.quality",6,1,7);
   TH1F* histo7 = new TH1F("dtPrimitive.size3OR4.bx","dtPrimitive.bx",16,-9,6);
+  TH1F* histo8 = new TH1F("genParticle.sizeBX0.id_r","genParticle.id_r",5,0,5);
+  TH1F* histo9 = new TH1F("genParticle.sizeBX0.pt","genParticle.pt",100,0,215);
   // Set it to kTRUE if you do not run interactively
   gROOT->SetBatch(kTRUE); 
   //////////////gStyle->SetOptStat("ne");
@@ -191,21 +194,27 @@ int main(int argc, char* argv[]){
           {
           pt_assign = genParticle.pt;
           }
-          if(ev->dtPrimitives.size()==3 || ev->dtPrimitives.size()==4)
-          {
+          //if(ev->dtPrimitives.size()==3 || ev->dtPrimitives.size()==4)
           for (const auto & dtPrimitive : ev->dtPrimitives)
 	    {
            // histo1->Fill(dtPrimitive.id_r);
            // histo2->Fill(dtPrimitive.id_phi);
            // histo3->Fill(dtPrimitive.id_eta);
            // histo4->Fill(dtPrimitive.phi);
-            //histo5->Fill(dtPrimitive.phiB);
+           // histo5->Fill(dtPrimitive.phiB);
            // histo6->Fill(dtPrimitive.quality);
-           //histo7->Fill(dtPrimitive.bx);
+           // histo7->Fill(dtPrimitive.bx);
+           if(dtPrimitive.bx==0){
+           histo8->Fill(dtPrimitive.id_r);
            myfile << iEvent << '\t' << dtPrimitive.id_r << '\t' << dtPrimitive.id_phi << '\t' << dtPrimitive.id_eta << '\t' << dtPrimitive.phi << '\t' << dtPrimitive.phiB << '\t' << dtPrimitive.quality << '\t' << dtPrimitive.bx << '\t' << pt_assign << '\n';  
-            ID++;
+            ID++; 
+            if(iEvent == a){
+            continue;}
+            histo9->Fill(pt_assign);
+            //myfile << iEvent << '\t' << pt_assign << '\n';
+            a = iEvent;} 
+            a = iEvent;
             } 
-          }
 	}
       
       delete ev;
