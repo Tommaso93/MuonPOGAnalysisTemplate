@@ -53,4 +53,14 @@ dtPrimitive.id_eta    Ring/wheel identifier integer.
 dtPrimitive.phiGlb    Phi angle expressed in global coordinates (depending on the active sector)
 dtPrimitive.phiB      Bending angle (rescaled using: phiGlb+phiB/512)
 genParticle.pt        Transverse angle of the muon generated (used as target for predictions).
+
 ```
+
+The cut used for the creation of the CSV is:
+
+```
+dtPrimitive.bx==0    Bunch-Crossing required to be =0 in order to avoid all issues related to pile-up
+
+```
+
+
