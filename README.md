@@ -41,5 +41,16 @@ Example:
 
 ```bash
 ./exampleMacro.py --fin /afs/cern.ch/work/b/bonacor/TOMMASO/MuonTree.root --branch MuonPogTree/MUONPOGTREE --branches "dtPrimitive.id_r,dtPrimitive.id_eta,dtPrimitive.id_phi,dtPrimitive.bxTrackFinder(),dtPrimitive.phiGlb(),genParticle.pt,dtPrimitive.bx" --fout output_bxcut.csv --cut "dtPrimitive.bx==0"
-```
 
+## List of variables used for input
+
+This section shows the input variables used in the csv:
+
+```
+dtPrimitive.id_r      Station identifier integer.
+dtPrimitive.id_phi    Sector identifier integer.
+dtPrimitive.id_eta    Ring/wheel identifier integer.
+dtPrimitive.phiGlb    Phi angle expressed in global coordinates (depending on the active sector)
+dtPrimitive.phiB      Bending angle (rescaled using: phiGlb+phiB/512)
+genParticle.pt        Transverse angle of the muon generated (used as target for predictions).
+```
