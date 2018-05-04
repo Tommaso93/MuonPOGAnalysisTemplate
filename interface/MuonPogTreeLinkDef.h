@@ -14,6 +14,7 @@
 #pragma link C++ class muon_pog::DtDigiSummary+;
 #pragma link C++ class muon_pog::TriggerPrimitive+;
 #pragma link C++ class muon_pog::L1Muon+;
+#pragma link C++ class muon_pog::BMTFMuon+;
 #pragma link C++ class muon_pog::HLT+;
 #pragma link C++ class muon_pog::HLTObject+;
 #pragma link C++ class muon_pog::ChambMatch+;
@@ -27,6 +28,8 @@
 #pragma link C++ class std::vector<muon_pog::DtDigiSummary>+;
 #pragma link C++ class std::vector<muon_pog::TriggerPrimitive>+;
 #pragma link C++ class std::vector<muon_pog::HLTObject>+;
+#pragma link C++ class std::vector<muon_pog::BMTFMuon>+;
+#pragma link C++ class std::vector<muon_pog::L1Muon>+;
 #pragma link C++ class std::vector<muon_pog::ChambMatch>+;
 #pragma link C++ class std::vector<muon_pog::HitInfo>+;
 #pragma link C++ class std::vector<muon_pog::MuonFit>+;

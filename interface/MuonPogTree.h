@@ -1,3 +1,4 @@
+
 #ifndef MuonPOG_Tools_MuonPogTree_H
 #define MuonPOG_Tools_MuonPogTree_H
 
@@ -437,6 +438,31 @@ namespace muon_pog {
       
   };
 
+  class BMTFMuon {
+  public:
+        
+    Float_t pt;  // pt [GeV]
+    Float_t eta; // eta
+    Float_t phi; // phi
+    Float_t phiGlb; // phi global
+    Int_t charge; //charge (0 if invalid)
+      
+    Int_t quality;
+    Int_t bx;
+      
+    Int_t etaFine;
+    Int_t processor;
+    Int_t wheel;
+
+    std::vector<int> trAddress;
+    
+    BMTFMuon(){};
+    virtual ~BMTFMuon(){};
+      
+    ClassDef(BMTFMuon,1)
+      
+  };
+
   class HLT {
   public:
     std::vector<std::string> triggers; // vector of strings with HLT paths
@@ -503,6 +529,7 @@ namespace muon_pog {
     muon_pog::METs mets;  // vector of different MET definitions 
     muon_pog::HLT hlt;                 // HLT objects
     std::vector <muon_pog::L1Muon> l1muons; //vector with the L1 muon candidates
+    std::vector <muon_pog::BMTFMuon> bmtfMuons; //vector with the BMTF muon candidates
       
     Event(){};
     virtual ~Event(){};
